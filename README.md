@@ -10,7 +10,7 @@ The target of this project is make sure ARP server can handle the message and th
 
 You should have DPDK environment first.
 
-Go to the project root and use `make` command to build everything, the binary should appear in `./build` directory.
+Go to the project root and use `cmake .` command to configure the project, `make` to build everything, the binary should appear in `./build` directory.
 
 ## Test the project
 
