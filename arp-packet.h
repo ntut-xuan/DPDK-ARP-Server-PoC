@@ -156,10 +156,10 @@ public:
         return address;
     }
 
-    ReplyARP generate_resposne_packet(MACAddress self_mac_address){
+    ReplyARP generate_resposne_packet(std::vector<MACAddress> mac_addresses, int index = 0){
         IPAddress source_ip_address = get_source_ip_address();
         IPAddress dest_ip_address = get_dest_ip_address();
-        MACAddress dest_mac_address = self_mac_address;
+        MACAddress dest_mac_address = mac_addresses[index];
         MACAddress source_mac_address = get_source_mac_address();
 
         return ReplyARP(source_ip_address, dest_ip_address, dest_mac_address, source_mac_address, packet_len);

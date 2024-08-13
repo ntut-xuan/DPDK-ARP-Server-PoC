@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 
 #include <spdlog/spdlog.h>
 #include <rte_debug.h>
@@ -19,6 +20,16 @@
 
 #define BURST_SIZE 32
 
+bool is_open_arp_receive(int argc, char** argv){
+    for(int i = 0; i < argc; i++){
+        spdlog::info("Fetch arguments {0}.", argv[i]);
+        if(strcmp(argv[i], "--no-arp") == 0){
+            return false;
+        }
+    }
+    return true;
+}
+
 int main(int argc, char** argv){
     struct rte_mempool *mbuf_pool = NULL;
     uint16_t port_id;
@@ -34,7 +45,16 @@ int main(int argc, char** argv){
     spdlog::info("Start Port Initialization.");
     initialize_port(port_id, mbuf_pool);
 
-    spdlog::info("All Initialization step is completed. Start to capture the flag.");
+    bool arp_receive = is_open_arp_receive(argc, argv);
+
+    if(arp_receive){
+        spdlog::info("ARP Packet Capture on");
+    }else{
+        spdlog::info("ARP Packet Capture off");
+    }
+
+    spdlog::info("All Initialization step is completed. Start to capture the packet.");
+
 
     struct rte_mbuf *bufs[BURST_SIZE];
     while(1){
@@ -57,6 +77,12 @@ int main(int argc, char** argv){
             if(packet.get_protocol_type() == PROTOCOL_TYPE::ARP){
                 MACAddress port_mac_address = fetch_mac_address_by_port(port_id);
 
+                std::vector<MACAddress> mac_addresses = {
+                    port_mac_address,
+                    MACAddress("08:00:27:82:B7:73"),
+                    MACAddress("08:00:27:28:55:97")
+                };
+
                 Packet::ARP arp(packet);
                 spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [\033[32m%l\033[m] [\033[95mARP\033[m] %v");
                 spdlog::info("Received ARP Packet. [Source IP={0}, Dest IP={1}, Source MAC Address={2}]", 
@@ -64,7 +90,9 @@ int main(int argc, char** argv){
                     arp.get_dest_ip_address().to_string(), 
                     arp.get_source_mac_address().to_string()
                 );
-                Packet::ReplyARP replyARP = arp.generate_resposne_packet(port_mac_address);
+                int specific_mac_address_index = rand() % 3;
+                spdlog::info("Choose index {0} [MAC Address={1}] as reply MAC Address.", specific_mac_address_index, mac_addresses[specific_mac_address_index].to_string());
+                Packet::ReplyARP replyARP = arp.generate_resposne_packet(mac_addresses, specific_mac_address_index);
                 spdlog::info("Reply ARP Packet. [Source IP={0}, Dest IP={1}, Source MAC Address={2}, Dest MAC Address={3}]", 
                     replyARP.get_sender_ip_address().to_string(), 
                     replyARP.get_target_ip_address().to_string(), 

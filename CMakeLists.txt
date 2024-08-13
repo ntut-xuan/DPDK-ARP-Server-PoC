@@ -32,7 +32,7 @@ if(NOT DPDK_FOUND)
 endif()
 
 # Set compilation flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 ${LIBDPDK_CFLAGS} -DALLOW_EXPERIMENTAL_API -g -mssse3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 ${LIBDPDK_CFLAGS} -DALLOW_EXPERIMENTAL_API -g -mssse3 -std=c++17")
 
 # Create build folder
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/build)
