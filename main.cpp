@@ -101,7 +101,7 @@ int main(int argc, char** argv){
                     arp.get_dest_ip_address().to_string(), 
                     arp.get_source_mac_address().to_string()
                 );
-                int specific_mac_address_index = rand() % 3;
+                int specific_mac_address_index = rand() % mac_addresses.size();
                 spdlog::info("Choose index {0} [MAC Address={1}] as reply MAC Address.", specific_mac_address_index, mac_addresses[specific_mac_address_index].to_string());
                 Packet::ReplyARP replyARP = arp.generate_resposne_packet(mac_addresses, specific_mac_address_index);
                 spdlog::info("Reply ARP Packet. [Source IP={0}, Dest IP={1}, Source MAC Address={2}, Dest MAC Address={3}]", 
