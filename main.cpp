@@ -92,7 +92,7 @@ int main(int argc, char** argv){
                 packet_len
             );
             
-            if(packet.get_protocol_type() == PROTOCOL_TYPE::ARP){
+            if(arp_receive && packet.get_protocol_type() == PROTOCOL_TYPE::ARP){
                 
                 Packet::ARP arp(packet);
                 spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [\033[32m%l\033[m] [\033[95mARP\033[m] %v");
