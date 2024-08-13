@@ -23,7 +23,6 @@ private:
         std::vector<uint8_t> vec;
         for(int i = 0; i < mac_address.length(); i++){
             if(mac_address[i] == ':'){
-                spdlog::info("Trying to convert the string {} to decimal with uint8_t type", "0x" + tmp);
                 vec.push_back(convert_to_dec_uint8_t("0x" + tmp));
                 tmp = "";
                 continue;

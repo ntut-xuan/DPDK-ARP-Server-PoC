@@ -30,6 +30,18 @@ bool is_open_arp_receive(int argc, char** argv){
     return true;
 }
 
+std::vector<MACAddress> get_registered_mac_address(int argc, char** argv){
+    std::vector<MACAddress> mac_addresses;
+    for(int i = 0; i < argc; i++){
+        if(strcmp(argv[i], "-m") == 0){
+            MACAddress mac_address = MACAddress(argv[i+1]);
+            spdlog::info("Register additional MAC Address {0}.", mac_address.to_string());
+            mac_addresses.push_back(mac_address);
+        }
+    }
+    return mac_addresses;
+}
+
 int main(int argc, char** argv){
     struct rte_mempool *mbuf_pool = NULL;
     uint16_t port_id;
@@ -53,8 +65,14 @@ int main(int argc, char** argv){
         spdlog::info("ARP Packet Capture off");
     }
 
-    spdlog::info("All Initialization step is completed. Start to capture the packet.");
+    MACAddress port_mac_address = fetch_mac_address_by_port(port_id);
 
+    std::vector<MACAddress> mac_addresses = get_registered_mac_address(argc, argv);
+    mac_addresses.push_back(port_mac_address);
+    spdlog::info("Register self MAC Address {0}.", port_mac_address.to_string());
+
+
+    spdlog::info("All Initialization step is completed. Start to capture the packet.");
 
     struct rte_mbuf *bufs[BURST_SIZE];
     while(1){
@@ -75,14 +93,7 @@ int main(int argc, char** argv){
             );
             
             if(packet.get_protocol_type() == PROTOCOL_TYPE::ARP){
-                MACAddress port_mac_address = fetch_mac_address_by_port(port_id);
-
-                std::vector<MACAddress> mac_addresses = {
-                    port_mac_address,
-                    MACAddress("08:00:27:82:B7:73"),
-                    MACAddress("08:00:27:28:55:97")
-                };
-
+                
                 Packet::ARP arp(packet);
                 spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [\033[32m%l\033[m] [\033[95mARP\033[m] %v");
                 spdlog::info("Received ARP Packet. [Source IP={0}, Dest IP={1}, Source MAC Address={2}]", 
